@@ -81,10 +81,10 @@
       hint.textContent = "Определено: " + result.reason;
 
       // Авто-редирект только если определили стор
-      if (result.url) {
-        // небольшой таймаут, чтобы успел отрисоваться fallback-текст/кнопки
-        setTimeout(() => redirect(result.url), 150);
-      }
+      // if (result.url) {
+      //   // небольшой таймаут, чтобы успел отрисоваться fallback-текст/кнопки
+      //   setTimeout(() => redirect(result.url), 150);
+      // }
     })();
   </script>
 </body>
