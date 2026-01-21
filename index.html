@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Открыть приложение</title>
+  <style>
+    body { font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Inter,Arial,sans-serif; margin: 0; padding: 24px; }
+    .wrap { max-width: 520px; margin: 0 auto; }
+    h1 { font-size: 20px; margin: 0 0 10px; }
+    p { margin: 0 0 16px; line-height: 1.4; }
+    .btns { display: grid; gap: 12px; margin-top: 16px; }
+    a.btn { display: block; padding: 14px 16px; text-decoration: none; border: 1px solid #ddd; border-radius: 12px; color: #111; }
+    a.btn:active { transform: translateY(1px); }
+    .hint { font-size: 13px; color: #666; margin-top: 14px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Открываем магазин…</h1>
+    <p id="status">Если магазин не открылся автоматически, выберите вручную:</p>
+
+    <div class="btns">
+      <a class="btn" id="btn-ios" href="#" rel="nofollow noopener">App Store</a>
+      <a class="btn" id="btn-gp" href="#" rel="nofollow noopener">Google Play</a>
+      <a class="btn" id="btn-ag" href="#" rel="nofollow noopener">AppGallery</a>
+    </div>
+
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <script>
+    // 1) Вставь сюда реальные ссылки на магазины
+    const APPSTORE_URL   = "https://apps.instafintech.com/instaforex/ifxtrmn?store=appstore&utm_source=land&utm_medium=instaforex_main";
+    const GOOGLEPLAY_URL = "https://apps.instafintech.com/instaforex/ifxtrmn?store=googleplay&amp;utm_source=land&amp;utm_medium=instaforex_main";
+    const APPGALLERY_URL = "https://appgallery.huawei.com/app/C107940557";
+
+    // 2) (опционально) добавление utm/параметров к ссылкам
+    // Например: const SRC = "qr";
+    // function withParams(url){ const u=new URL(url); u.searchParams.set("src", SRC); return u.toString(); }
+    function withParams(url) { return url; }
+
+    const links = {
+      ios: withParams(APPSTORE_URL),
+      gp:  withParams(GOOGLEPLAY_URL),
+      ag:  withParams(APPGALLERY_URL),
+    };
+
+    // Проставляем кнопки
+    document.getElementById("btn-ios").href = links.ios;
+    document.getElementById("btn-gp").href  = links.gp;
+    document.getElementById("btn-ag").href  = links.ag;
+
+    function detectStore() {
+      const ua = navigator.userAgent || "";
+      const uaU = ua.toUpperCase();
+
+      const isIOS = /IPHONE|IPAD|IPOD/i.test(ua);
+      const isAndroid = /ANDROID/i.test(ua);
+
+      if (isIOS) return { store: "ios", url: links.ios, reason: "iOS" };
+
+      if (isAndroid) {
+        // Huawei/Honor детект (не 100%, поэтому ниже есть fallback-кнопки)
+        const isHuawei = uaU.includes("HUAWEI") || uaU.includes("HONOR") || uaU.includes("HMSCORE");
+        if (isHuawei) return { store: "ag", url: links.ag, reason: "Android (Huawei/Honor)" };
+        return { store: "gp", url: links.gp, reason: "Android" };
+      }
+
+      return { store: "unknown", url: null, reason: "Unknown device" };
+    }
+
+    function redirect(url) {
+      // location.replace не оставляет страницу в истории, обычно удобнее для редиректа
+      window.location.replace(url);
+    }
+
+    (function run() {
+      const result = detectStore();
+      const hint = document.getElementById("hint");
+      hint.textContent = "Определено: " + result.reason;
+
+      // Авто-редирект только если определили стор
+      if (result.url) {
+        // небольшой таймаут, чтобы успел отрисоваться fallback-текст/кнопки
+        setTimeout(() => redirect(result.url), 150);
+      }
+    })();
+  </script>
+</body>
+</html>
